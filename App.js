@@ -1,18 +1,19 @@
 import { NavigationContainer, useFocusEffect, useNavigation, useRoute,} from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useState, useEffect } from "react";
-import { Button, ScrollView, Text, TextInput, View, Image } from "react-native";
+import { Button, ScrollView, Text, TextInput, View, Image, TouchableOpacity, requireNativeComponent } from "react-native";
 
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
 
+
   let [movies, setMovie] = useState([
     {
       id: 0,
       titre: 'The Suicide Squad',
-      image: 'The_Suicide_Squad.jpg',
+      image: require('./assets/The_Suicide_Squad.jpg'),
       resume: `
         Face à une menace aussi énigmatique qu'invincible, l'agent secret Amanda Waller réunit une armada de crapules de la pire espèce. 
         Armés jusqu'aux dents par le gouvernement, ces Super-Méchants s'embarquent alors pour une mission-suicide. Jusqu'au moment où ils 
@@ -23,7 +24,7 @@ const HomeScreen = () => {
     {
       id: 1,
       titre: 'Les Aventures de Rabi Jacob',
-      image: 'les-aventures-de-rabbi-jacob.jpg',
+      image: require('./assets/les-aventures-de-rabbi-jacob.jpg'),
       resume: `Victor Pivert, homme d’affaires irascible et foncièrement xénophobe, se rend à Paris 
           pour le mariage de sa fille. Victime d’un accident de la route sans gravité, il entre dans une usine de 
           chewing-gum pour trouver du secours. Là, il croise le chemin de dangereux terroristes qui s’apprêtent à 
@@ -37,7 +38,7 @@ const HomeScreen = () => {
     {
       id: 2,
       titre: 'Magnum P.I',
-      image: 'Magnum_P.I._Season_3_Poster.jpg',
+      image: require('./assets/Magnum_P.I._Season_3_Poster.jpg'),
       resume: `A son retour d\'Afghanistan, Thomas Magnum,officier décoré de l\'unité d\'élite des SEAL de la Marine
           américaine,s\'installe à Hawaï. Tout en assurant la sécurité du domaine du richissime Robin Master, Magnum, 
           hébergé sur la propriété dans la maison des invités, officie en tant que détective privé.`,
@@ -47,7 +48,7 @@ const HomeScreen = () => {
     {
       id: 3,
       titre: 'Taxi 3',
-      image: 'taxi_3.jpeg',
+      image: require('./assets/taxi_3.jpeg'),
       resume: `Marseille, à l\'approche de Noël. Daniel ne cesse de rajouter des gadgets à son taxi.
         Au point de faire passer son bolide avant sa compagne, Lilly, qui décide de retourner vivre chez ses parents.
         Petra, elle, reproche à Emilien d\'avoir la tête ailleurs. Celui-ci enrage en effet de ne pas avoir encore arrêté
@@ -72,15 +73,18 @@ const HomeScreen = () => {
 
   const listing = () => {
     return movies.map((movie) => {
+      let source = movie.image != null ? movie.image : require('./assets/unknown_affiche.jpg');
       return (
-        <View key={movie.id} style={{ margin: 10 }}>
-          <Image source={movie.image ? require(`./assets/${movie.image}`) : require('./assets/unknown_affiche.jpg')} style={{ width: '20%', height: 200, resizeMode: 'contain' }} />
-          <Text>Titre </Text>
-          <Text>{movie.titre}</Text>
-          <Text>Résumé </Text>
-          <Text>{movie.resume.replaceAll('\n', ' ').replaceAll(/\s+/g, ' ').trim()}</Text>
-          <Text>Note : {movie.notes}/5</Text>
-          <Text>Lien IMDB : {movie.lienIMDB}</Text>
+        <View key={movie.id} style={{ margin: 10, display:'flex', flexDirection: 'row' }}>
+          <TouchableOpacity style={{ width: '10%', marginRight: 15 }} onPress={() => navigation.navigate("Détails", { movie: movie })}>
+            <Image source={source} style={{ width: '100%', height: 200, resizeMode: 'contain' }} />
+          </TouchableOpacity>
+          <View style={{width: '89%' }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 10 }}>{movie.titre}</Text>
+            <Text style={{ fontWeight: 'bold', marginBottom: 10}}>Résumé </Text>
+            <Text style={{ marginBottom: 20 }}>{movie.resume.replace('\n', ' ').replace(/\s+/g, ' ').trim()}</Text>
+            <Text style={{ marginBottom: 10, fontSize: 15 }}>Note : {movie.notes}/5</Text>
+          </View>
         </View>
       );
     });
@@ -124,9 +128,39 @@ const AddMovieScreen = () => {
       <TextInput value={note} placeholder="add element..." onChangeText={setNote} />
       <Text> Lien IMDB </Text>
       <TextInput value={lien} placeholder="add element..." onChangeText={setLien} />
-      <Button title="Valider" disabled={!validate} onPress={() => navigation.navigate("Home", { titre: titre , resume: resume, note: note, lienIMDB: lien })} />
+      <Button title="Valider" disabled={!validate} onPress={() => navigation.navigate("Détails", { titre: titre , resume: resume, note: note, lienIMDB: lien })} />
     </View>
   );
+};
+
+const DetailScreen = () => {
+  
+  const route = useRoute();
+  const navigation = useNavigation();
+
+  // let movie = route.params.movie;
+  
+  //if (movie == null)
+  let movie = { titre: route.params.titre, resume: route.params.resume, note: route.params.note, lienIMDB: route.params.lienIMDB };
+  let source = movie.image ? movie.image : require('./assets/unknown_affiche.jpg');
+  
+  return (
+    <View>
+      <View style={{ width: '10%', marginRight: 15 }} >
+        <Image source={source} style={{ width: '100%', height: 200, resizeMode: 'contain' }} />
+      </View>
+      <View style={{ width: '89%' }}>
+        <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 10 }}>{movie.titre}</Text>
+        <Text style={{ fontWeight: 'bold', marginBottom: 10 }}>Résumé </Text>
+        <Text style={{ marginBottom: 20 }}>{movie.resume.replace('\n', ' ').replace(/\s+/g, ' ').trim()}</Text>
+        <Text style={{ marginBottom: 10, fontSize: 15 }}>Note : {movie.notes}/5</Text>
+        <Text>Lien IMDB : {movie.lienIMDB}</Text>
+      </View>
+
+      <Button title="Retour à la liste des films" onPress={() => navigation.navigate("Home", movie)} />
+
+    </View>
+  )
 }
 
 const Stack = createNativeStackNavigator();
@@ -146,6 +180,12 @@ const App = () => {
           }}
         />
         <Stack.Screen name="Add" component={AddMovieScreen} />
+        <Stack.Screen name="Détails" component={DetailScreen} initialParams={{
+          movie: null, 
+          titre: null,
+          resume: null,
+          note: null,
+          lienIMDB: null}} />
       </Stack.Navigator>
     </NavigationContainer>
   );
