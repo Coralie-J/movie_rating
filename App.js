@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { LoginScreen } from './components/Login.js';
 import { TabScreen } from './components/Onglets.js';
+import { SettingsScreen } from './components/Settings';
 
 
 const Stack = createNativeStackNavigator();
@@ -13,6 +14,7 @@ const App = () => {
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Movie" component={TabScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

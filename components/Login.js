@@ -32,6 +32,7 @@ const LoginScreen = () => {
             <TextInput value={password} onChangeText={setPassword} />
             <Button title="Add user" onPress={addUser} disabled={!validate} />
             <Button title="Voir la liste des films" onPress={() => navigation.navigate("Movie")} />
+            <Button title="Réglages" onPress={() => navigation.navigate("Settings")} />
         </View>
     );
 };

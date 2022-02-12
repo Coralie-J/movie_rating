@@ -24,7 +24,8 @@ const SearchIMDBScreen = () => {
     };
 
     useEffect(() => {
-        fetchMovies();
+        if (recherche.trim() != "")
+            fetchMovies();
     }, [recherche]);
 
 
