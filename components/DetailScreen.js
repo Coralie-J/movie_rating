@@ -7,7 +7,7 @@ const DetailScreen = () => {
     let movie = route.params.movie;
 
     if (movie != null) {
-        let source = movie.image ? movie.image : require('./assets/unknown_affiche.jpg');
+        let source = movie.image ? movie.image : require('../assets/unknown_affiche.jpg');
 
         return (
             <ScrollView>
@@ -33,5 +33,6 @@ const DetailScreen = () => {
             <Text> Aucun film selectionné</Text>
         </View>
     );
-
 }
+
+export {DetailScreen};

@@ -4,7 +4,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { HomeScreen } from './Home';
 import { AddMovieScreen } from './Add';
 import { DetailScreen } from './DetailScreen';
-import { SettingsScreen } from './Settings';
+import { SearchIMDBScreen } from './Search_IMDB';
 
 const TabScreen = () => {
     const Tabs = createBottomTabNavigator();
@@ -18,12 +18,12 @@ const TabScreen = () => {
 
                     if (route.name == "Home") {
                         iconName = focused ? "home" : "home-outline";
-                    } else if (route.name == "Settings") {
-                        iconName = focused ? "settings" : "settings-outline";
                     } else if (route.name == "Add") {
                         iconName = focused ? "add" : "add-outline";
                     } else if (route.name == "Détails") {
                         iconName = focused ? "information-circle" : "information-circle-outline";
+                    } else if (route.name == "IMDB") {
+                        iconName = focused ? "search-circle" : "search-circle-outline";
                     }
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
@@ -40,9 +40,9 @@ const TabScreen = () => {
             }} />
             <Tabs.Screen name="Add" component={AddMovieScreen} />
             <Tabs.Screen name="Détails" component={DetailScreen} initialParams={{ movie: null }} />
-            <Tabs.Screen name="Settings" component={SettingsScreen} />
+            <Tabs.Screen name="IMDB" component={SearchIMDBScreen} />
         </Tabs.Navigator>
     );
 };
 
-export default TabScreen;
+export {TabScreen};

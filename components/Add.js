@@ -36,4 +36,4 @@ const AddMovieScreen = () => {
     );
 };
 
-export default AddMovieScreen;
+export {AddMovieScreen};

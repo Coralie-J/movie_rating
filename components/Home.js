@@ -1,9 +1,7 @@
-import { NavigationContainer, useFocusEffect, useNavigation, useRoute, } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import { useState, useEffect } from "react";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { Button, ScrollView, Text, TextInput, View, Image, Pressable, FlatList } from "react-native";
+import { Button, Text, TextInput, View, Image, Pressable, FlatList } from "react-native";
 
 const HomeScreen = () => {
     const navigation = useNavigation();
@@ -59,6 +57,12 @@ const HomeScreen = () => {
         }
     ]);
 
+    const [movieMatchSearch, setMovieMatchSearch ] = useState(movies);
+    const [recherche, setRecherche] = useState("");
+    const [isCheckedNom, setCheckedNom] = useState(false);
+    const [isCheckedDate, setCheckedDate] = useState(false);
+    const [isCheckedNote, setCheckedNote] = useState(false);
+
     const addMovie = (titre, resume, note, lienIMDB) => {
         setMovie((current) => [...current, { id: current.length, titre: titre, resume: resume, notes: note, lienIMDB: lienIMDB }])
     };
@@ -72,14 +76,33 @@ const HomeScreen = () => {
         route.params.lienIMDB = null;
     });
 
+    useEffect(() =>{
+        if (recherche.trim() == ""){
+            setMovieMatchSearch(movies);
+        } else {
+            setMovieMatchSearch(movies.filter(movie => movie.titre.indexOf(recherche) != -1 ));
+        }
+    }, [recherche, movies]);
+
     return (
         <View>
+            <View style={{flexDirection:'row', borderColor: 'grey', borderWidth: 1, borderRadius: 20, marginLeft: 5, marginTop: 10, marginBottom: 10, width: '97%' }}>
+                <Ionicons name="search-outline" size={20} color="grey" style={{ textAlignVertical:'center', marginRight: 5, marginLeft: 5 }} />
+                <TextInput placeholder="Rechercher" value={recherche} onChangeText={setRecherche} />
+            </View>
+            <View style={{flexDirection: 'row', width: '80%', justifyContent: 'space-between', flexWrap: 'nowrap'}}>
+                <Text>Trier par : </Text>
+                <Pressable><Text style={{ borderRadius: 20, backgroundColor: 'tomato', fontSize: 12, width: 50, textAlign: 'center'}}>Nom</Text></Pressable>
+                <Pressable><Text style={{ borderRadius: 20, backgroundColor: 'tomato', fontSize: 12, width: 50, textAlign: 'center' }}>Date</Text></Pressable>
+                <Pressable><Text style={{ borderRadius: 20, backgroundColor: 'tomato', fontSize: 12, width: 50, textAlign: 'center' }}>Note</Text></Pressable>
+                
+            </View>
             <FlatList
-                data={movies}
+                data={movieMatchSearch}
                 renderItem={({ item }) => (
                     <Pressable onPress={() => navigation.navigate("Détails", { movie: item })}>
                         <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', height: 150 }}>
-                            <Image source={item.image ? item.image : require('./assets/unknown_affiche.jpg')} style={{ width: 100, height: 200, resizeMode: 'contain' }} />
+                            <Image source={item.image ? item.image : require('../assets/unknown_affiche.jpg')} style={{ width: 100, height: 200, resizeMode: 'contain' }} />
                             <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{item.titre}</Text>
                         </View>
                     </Pressable>
@@ -91,4 +114,4 @@ const HomeScreen = () => {
     );
 };
 
-export default HomeScreen;
+export {HomeScreen};
