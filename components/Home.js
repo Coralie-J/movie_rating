@@ -2,11 +2,11 @@ import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/nativ
 import { useState, useEffect } from "react";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Button, Text, TextInput, View, Image, Pressable, FlatList } from "react-native";
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 
 const HomeScreen = () => {
     const navigation = useNavigation();
     const route = useRoute();
-
 
     let [movies, setMovie] = useState([
         {
@@ -52,7 +52,7 @@ const HomeScreen = () => {
         Au point de faire passer son bolide avant sa compagne, Lilly, qui décide de retourner vivre chez ses parents.
         Petra, elle, reproche à Emilien d\'avoir la tête ailleurs. Celui-ci enrage en effet de ne pas avoir encore arrêté
         le gang des pères Noël, qui multiplie les braquages depuis huit mois.`,
-            notes: 4.9,
+            notes: 4.4,
             lienIMDB: 'https://www.imdb.com/title/tt0295721/'
         }
     ]);
@@ -60,8 +60,20 @@ const HomeScreen = () => {
     const [movieMatchSearch, setMovieMatchSearch ] = useState(movies);
     const [recherche, setRecherche] = useState("");
     const [isCheckedNom, setCheckedNom] = useState(false);
-    const [isCheckedDate, setCheckedDate] = useState(false);
     const [isCheckedNote, setCheckedNote] = useState(false);
+
+    const triFilmsNom = (key) => {
+        let titres = movieMatchSearch.map((f) => f[key]);
+        titres.sort();
+        let sorted_movies = [];
+        let indice;
+        for (let i=0; i < titres.length; i++){
+            indice = movieMatchSearch.findIndex((movie) => movie[key] == titres[i] && sorted_movies.indexOf(movie) == -1);
+            if (indice !== undefined)
+                sorted_movies.push(movieMatchSearch[indice]);
+        }
+        setMovieMatchSearch(sorted_movies);
+    }
 
     const addMovie = (titre, resume, note, lienIMDB) => {
         setMovie((current) => [...current, { id: current.length, titre: titre, resume: resume, notes: note, lienIMDB: lienIMDB }])
@@ -79,10 +91,15 @@ const HomeScreen = () => {
     useEffect(() =>{
         if (recherche.trim() == ""){
             setMovieMatchSearch(movies);
+            isCheckedNom ? triFilmsNom("titre") : setMovieMatchSearch(movies);
+            // isCheckedNote ? triFilmsNom("notes") : setMovieMatchSearch(movies);
         } else {
-            setMovieMatchSearch(movies.filter(movie => movie.titre.indexOf(recherche) != -1 ));
+            setMovieMatchSearch(movies.filter(movie => movie.titre.indexOf(recherche.toLowerCase()) != -1 || movie.titre.indexOf(recherche.toUpperCase()) != -1));
+            isCheckedNom ? triFilmsNom("titre") : setMovieMatchSearch(movies.filter(movie => movie.titre.indexOf(recherche.toLowerCase()) != -1 || movie.titre.indexOf(recherche.toUpperCase()) != -1 ));
+            // isCheckedNote ? triFilmsNom("notes") : setMovieMatchSearch(movies.filter(movie => movie.titre.indexOf(recherche.toLowerCase()) != -1 || movie.titre.indexOf(recherche.toUpperCase()) != -1));
         }
-    }, [recherche, movies]);
+    }, [recherche, movies, isCheckedNom, isCheckedNote]);
+
 
     return (
         <View>
@@ -90,18 +107,18 @@ const HomeScreen = () => {
                 <Ionicons name="search-outline" size={20} color="grey" style={{ textAlignVertical:'center', marginRight: 5, marginLeft: 5 }} />
                 <TextInput placeholder="Rechercher" value={recherche} onChangeText={setRecherche} />
             </View>
-            <View style={{flexDirection: 'row', width: '80%', justifyContent: 'space-between', flexWrap: 'nowrap'}}>
+            <View style={{flexDirection: 'row', width: '80%', flexWrap: 'nowrap'}}>
                 <Text>Trier par : </Text>
-                <Pressable><Text style={{ borderRadius: 20, backgroundColor: 'tomato', fontSize: 12, width: 50, textAlign: 'center'}}>Nom</Text></Pressable>
-                <Pressable><Text style={{ borderRadius: 20, backgroundColor: 'tomato', fontSize: 12, width: 50, textAlign: 'center' }}>Date</Text></Pressable>
-                <Pressable><Text style={{ borderRadius: 20, backgroundColor: 'tomato', fontSize: 12, width: 50, textAlign: 'center' }}>Note</Text></Pressable>
-                
+                <BouncyCheckbox isChecked={isCheckedNom} onPress={() => setCheckedNom(!isCheckedNom)} />
+                <Text>Nom</Text>
+                <BouncyCheckbox isChecked={isCheckedNote} onPress={() => setCheckedNote(!isCheckedNote)} />
+                <Text>Note</Text>
             </View>
-            <FlatList
+            <FlatList style={{marginBottom: 50}}
                 data={movieMatchSearch}
                 renderItem={({ item }) => (
                     <Pressable onPress={() => navigation.navigate("Détails", { movie: item })}>
-                        <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', height: 150 }}>
+                        <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', height:205 }}>
                             <Image source={item.image ? item.image : require('../assets/unknown_affiche.jpg')} style={{ width: 100, height: 200, resizeMode: 'contain' }} />
                             <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{item.titre}</Text>
                         </View>
@@ -109,7 +126,6 @@ const HomeScreen = () => {
                 )}
                 keyExtractor={(item) => item.id}
             />
-            <Button title="Add film" onPress={() => navigation.navigate("Add")} />
         </View>
     );
 };

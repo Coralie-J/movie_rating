@@ -7,8 +7,14 @@ const LoginScreen = () => {
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
     const [validate, setValidate] = useState(false);
+    const [isConnected, setConnected] = useState(false);
 
-    const [users, setUsers] = useState([]);
+    const user = {
+        login: "toto",
+        password: "toto" 
+    };
+
+ 
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -17,12 +23,17 @@ const LoginScreen = () => {
         } else {
             setValidate(false);
         }
-    }
-        , [login, password]);
+    }, [login, password]);
 
-    const addUser = () => {
-        setUsers((current) => [...current, { id: current.length, login: login, password: password }]);
-    };
+    const checkConnexion = () => {
+        if (! isConnected){
+            if (login == user.login && password == user.password) {
+                setConnected(true);
+            }
+        } else {
+            setConnected(false);
+        }
+    }
 
     return (
         <View>
@@ -30,7 +41,8 @@ const LoginScreen = () => {
             <TextInput value={login} onChangeText={setLogin} />
             <Text>Password : </Text>
             <TextInput value={password} onChangeText={setPassword} />
-            <Button title="Add user" onPress={addUser} disabled={!validate} />
+            <Button title={isConnected ? "Logout" : "Login"} onPress={checkConnexion} disabled={!validate} />
+            <Text>{isConnected ? "Bienvenue toto" : ""}</Text>
             <Button title="Voir la liste des films" onPress={() => navigation.navigate("Movie")} />
             <Button title="Réglages" onPress={() => navigation.navigate("Settings")} />
         </View>
