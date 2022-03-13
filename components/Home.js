@@ -22,6 +22,16 @@ const HomeScreen = () => {
         },
         {
             id: 1,
+            titre: 'Magnum P.I',
+            image: require('../assets/Magnum_P.I._Season_3_Poster.jpg'),
+            resume: `A son retour d\'Afghanistan, Thomas Magnum,officier décoré de l\'unité d\'élite des SEAL de la Marine
+          américaine,s\'installe à Hawaï. Tout en assurant la sécurité du domaine du richissime Robin Master, Magnum, 
+          hébergé sur la propriété dans la maison des invités, officie en tant que détective privé.`,
+            notes: 4.9,
+            lienIMDB: 'https://www.imdb.com/title/tt7942796/?ref_=nm_flmg_act_4'
+        },
+        {
+            id: 2,
             titre: 'Les Aventures de Rabi Jacob',
             image: require('../assets/les-aventures-de-rabbi-jacob.jpg'),
             resume: `Victor Pivert, homme d’affaires irascible et foncièrement xénophobe, se rend à Paris 
@@ -33,16 +43,6 @@ const HomeScreen = () => {
           en grande pompe par la communauté juive de la rue des Rosiers`,
             notes: 4.9,
             lienIMDB: 'https://www.imdb.com/title/tt0069747/'
-        },
-        {
-            id: 2,
-            titre: 'Magnum P.I',
-            image: require('../assets/Magnum_P.I._Season_3_Poster.jpg'),
-            resume: `A son retour d\'Afghanistan, Thomas Magnum,officier décoré de l\'unité d\'élite des SEAL de la Marine
-          américaine,s\'installe à Hawaï. Tout en assurant la sécurité du domaine du richissime Robin Master, Magnum, 
-          hébergé sur la propriété dans la maison des invités, officie en tant que détective privé.`,
-            notes: 4.9,
-            lienIMDB: 'https://www.imdb.com/title/tt7942796/?ref_=nm_flmg_act_4'
         },
         {
             id: 3,
@@ -63,14 +63,32 @@ const HomeScreen = () => {
     const [isCheckedNote, setCheckedNote] = useState(false);
 
     const triFilmsNom = (key) => {
-        let titres = movieMatchSearch.map((f) => f[key]);
-        titres.sort();
+        let sorted_movies = Object.values(movieMatchSearch);
+        if (key == "notes") {
+            sorted_movies.sort((a, b) => a["notes"] - b["notes"]);
+        }
+        else if (key == "titre"){
+            sorted_movies.sort((a, b) => a['titre'].localeCompare(b["titre"]));
+        }
+        setMovieMatchSearch(sorted_movies);
+    }
+
+    const triFilmsAll = () => {
+        setMovieMatchSearch(movieMatchSearch.sort((a, b) => a["notes"] - b["notes"]));
         let sorted_movies = [];
-        let indice;
-        for (let i=0; i < titres.length; i++){
-            indice = movieMatchSearch.findIndex((movie) => movie[key] == titres[i] && sorted_movies.indexOf(movie) == -1);
-            if (indice !== undefined)
-                sorted_movies.push(movieMatchSearch[indice]);
+        let tmp;
+        let i = 0;
+
+        while(i < movieMatchSearch.length) {
+            if (movieMatchSearch[i]["notes"] == movieMatchSearch[i+1]["notes"]){
+                tmp = movieMatchSearch.filter(movie => movie["notes"] == movieMatchSearch[i]["notes"]);
+                tmp.sort((a, b) => a['titre'].localeCompare(b["titre"]));
+                sorted_movies = sorted_movies.concat(tmp);
+                i += tmp.length;
+            } else {
+                sorted_movies.push(movieMatchSearch[i]);
+                i++;
+            }
         }
         setMovieMatchSearch(sorted_movies);
     }
@@ -91,12 +109,16 @@ const HomeScreen = () => {
     useEffect(() =>{
         if (recherche.trim() == ""){
             setMovieMatchSearch(movies);
-            isCheckedNom ? triFilmsNom("titre") : setMovieMatchSearch(movies);
-            // isCheckedNote ? triFilmsNom("notes") : setMovieMatchSearch(movies);
         } else {
             setMovieMatchSearch(movies.filter(movie => movie.titre.indexOf(recherche.toLowerCase()) != -1 || movie.titre.indexOf(recherche.toUpperCase()) != -1));
-            isCheckedNom ? triFilmsNom("titre") : setMovieMatchSearch(movies.filter(movie => movie.titre.indexOf(recherche.toLowerCase()) != -1 || movie.titre.indexOf(recherche.toUpperCase()) != -1 ));
-            // isCheckedNote ? triFilmsNom("notes") : setMovieMatchSearch(movies.filter(movie => movie.titre.indexOf(recherche.toLowerCase()) != -1 || movie.titre.indexOf(recherche.toUpperCase()) != -1));
+        }
+        if (isCheckedNom && isCheckedNote){
+            triFilmsAll();
+        }
+        else if (isCheckedNom){
+            triFilmsNom("titre");
+        } else if (isCheckedNote){
+            triFilmsNom("notes");
         }
     }, [recherche, movies, isCheckedNom, isCheckedNote]);
 
@@ -118,7 +140,7 @@ const HomeScreen = () => {
                 data={movieMatchSearch}
                 renderItem={({ item }) => (
                     <Pressable onPress={() => navigation.navigate("Détails", { movie: item })}>
-                        <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', height:205 }}>
+                        <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', height:201 }}>
                             <Image source={item.image ? item.image : require('../assets/unknown_affiche.jpg')} style={{ width: 100, height: 200, resizeMode: 'contain' }} />
                             <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{item.titre}</Text>
                         </View>
